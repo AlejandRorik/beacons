@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "350665392266",
+    "firebase_url": "https://beacons-7d57a.firebaseio.com",
+    "project_id": "beacons-7d57a",
+    "storage_bucket": "beacons-7d57a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:350665392266:android:dd71d375650696cc0f2d73",
+        "android_client_info": {
+          "package_name": "com.company.beacons"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "350665392266-3vqru690fs7i84nnla6ahqkof9asv86n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDSgZydHjDKAXH6m8IvBd2PSbM6T5uvNWM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "350665392266-3vqru690fs7i84nnla6ahqkof9asv86n.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
