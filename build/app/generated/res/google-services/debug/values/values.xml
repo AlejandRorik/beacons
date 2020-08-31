@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="default_web_client_id" translatable="false">350665392266-3vqru690fs7i84nnla6ahqkof9asv86n.apps.googleusercontent.com</string>
+    <string name="firebase_database_url" translatable="false">https://beacons-7d57a.firebaseio.com</string>
+    <string name="gcm_defaultSenderId" translatable="false">350665392266</string>
+    <string name="google_api_key" translatable="false">AIzaSyDSgZydHjDKAXH6m8IvBd2PSbM6T5uvNWM</string>
+    <string name="google_app_id" translatable="false">1:350665392266:android:dd71d375650696cc0f2d73</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyDSgZydHjDKAXH6m8IvBd2PSbM6T5uvNWM</string>
+    <string name="google_storage_bucket" translatable="false">beacons-7d57a.appspot.com</string>
+    <string name="project_id" translatable="false">beacons-7d57a</string>
+</resources>

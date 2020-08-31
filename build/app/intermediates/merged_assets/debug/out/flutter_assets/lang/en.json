@@ -1,0 +1,19 @@
+{
+  "logInAppBar": "Log In",
+  "logOutAppBar": "Log Out",
+  "registerAppBar": "Register User",
+  "registerError": "Cannot register with those credentials, check conditions",
+  "nameField": "Name",
+  "nameFieldRequired": "Name can't be empty",
+  "emailField": "Email",
+  "emailFieldRequired": "Email can't be empty",
+  "emailFieldBadFormat": "Email is bad formatted",
+  "passwField": "Password",
+  "passwFieldRequired": "Password can't be empty",
+  "passwFieldMoreThan5": "Must be 6 or more characters long",
+  "logInError": "Could not login with those credentials, enter others",
+  "homeAppBar": "Home",
+  "loading": "Loading...",
+  "noInternet": "Can't log in or register an user without internet connection",
+  "welcomeUser": "Welcome"
+}
