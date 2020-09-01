@@ -15,5 +15,7 @@
   "homeAppBar": "Home",
   "loading": "Loading...",
   "noInternet": "Can't log in or register an user without internet connection",
-  "welcomeUser": "Welcome"
+  "welcomeUser": "Welcome",
+  "turnBluetoothOn": "Please, turn bluetooth on in order to make use of this app.",
+  "turnBluetoothButtonOn": "Turn Bluetooth On"
 }

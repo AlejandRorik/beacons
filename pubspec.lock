@@ -146,6 +146,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_beacon:
+    dependency: "direct main"
+    description:
+      name: flutter_beacon
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.3.0"
   flutter_blue:
     dependency: "direct main"
     description:
@@ -320,13 +327,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.5"
-  system_shortcuts:
-    dependency: "direct main"
-    description:
-      name: system_shortcuts
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.0.0"
   term_glyph:
     dependency: transitive
     description:

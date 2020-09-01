@@ -35,7 +35,7 @@ dependencies:
   wc_form_validators: ^0.1.1
   flutter_spinkit: ^4.0.0
   flutter_blue: ^0.7.2
-  system_shortcuts: ^1.0.0
+  flutter_beacon: ^0.3.0
 
 dev_dependencies:
   flutter_test:

@@ -141,7 +141,6 @@ class _RegisterState extends State<Register> {
                                   });
                                   await _auth.getCurrentUser();
                                   Navigator.pop(this.context);
-                                  _showWelcomeUserMessage(context);
                                 }
                                 setState(() => loading = false);
                               }
@@ -171,17 +170,6 @@ class _RegisterState extends State<Register> {
   void _showNoInternetDialog(context) {
     AlertDialog alert = AlertDialog(
       content: Text(AppLocalizations.of(context).translate('noInternet').toString()),
-    );
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return alert;
-      },
-    );
-  }
-  void _showWelcomeUserMessage(context) {
-    AlertDialog alert = AlertDialog(
-      content: Text(AppLocalizations.of(context).translate('welcomeUser').toString()+" "+ AuthService.currentUserName.toString() +"!",textAlign: TextAlign.center,),
     );
     showDialog(
       context: context,

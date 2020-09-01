@@ -1,6 +1,6 @@
 # beacons
 
-Descubrimiento de beacons. Con flutter.
+A new Flutter application.
 
 ## Getting Started
 

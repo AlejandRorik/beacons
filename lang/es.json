@@ -15,5 +15,8 @@
   "homeAppBar": "Inicio",
   "loading": "Cargando...",
   "noInternet": "No puede iniciar sesión ni registrarse sin internet",
-  "welcomeUser": "¡Bienvenido"
+  "welcomeUser": "¡Bienvenido",
+  "turnBluetoothOn": "Por favor, encienda el bluetooth para empezar a utilizar esta aplicación.",
+  "turnBluetoothButtonOn": "Encender Bluetooth",
+  "turnBluetoothButtonOff": "Mantener Bluetooth apagado"
 }

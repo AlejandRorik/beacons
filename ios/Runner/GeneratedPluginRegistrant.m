@@ -22,16 +22,16 @@
 @import firebase_core;
 #endif
 
+#if __has_include(<flutter_beacon/FlutterBeaconPlugin.h>)
+#import <flutter_beacon/FlutterBeaconPlugin.h>
+#else
+@import flutter_beacon;
+#endif
+
 #if __has_include(<flutter_blue/FlutterBluePlugin.h>)
 #import <flutter_blue/FlutterBluePlugin.h>
 #else
 @import flutter_blue;
-#endif
-
-#if __has_include(<system_shortcuts/SystemShortcutsPlugin.h>)
-#import <system_shortcuts/SystemShortcutsPlugin.h>
-#else
-@import system_shortcuts;
 #endif
 
 @implementation GeneratedPluginRegistrant
@@ -40,8 +40,8 @@
   [FLTCloudFirestorePlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTCloudFirestorePlugin"]];
   [FLTFirebaseAuthPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTFirebaseAuthPlugin"]];
   [FLTFirebaseCorePlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTFirebaseCorePlugin"]];
+  [FlutterBeaconPlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterBeaconPlugin"]];
   [FlutterBluePlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterBluePlugin"]];
-  [SystemShortcutsPlugin registerWithRegistrar:[registry registrarForPlugin:@"SystemShortcutsPlugin"]];
 }
 
 @end

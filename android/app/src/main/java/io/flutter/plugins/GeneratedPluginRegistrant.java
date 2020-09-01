@@ -18,7 +18,7 @@ public final class GeneratedPluginRegistrant {
     flutterEngine.getPlugins().add(new io.flutter.plugins.firebase.cloudfirestore.CloudFirestorePlugin());
       io.flutter.plugins.firebaseauth.FirebaseAuthPlugin.registerWith(shimPluginRegistry.registrarFor("io.flutter.plugins.firebaseauth.FirebaseAuthPlugin"));
     flutterEngine.getPlugins().add(new io.flutter.plugins.firebase.core.FirebaseCorePlugin());
+      com.flutterbeacon.FlutterBeaconPlugin.registerWith(shimPluginRegistry.registrarFor("com.flutterbeacon.FlutterBeaconPlugin"));
     flutterEngine.getPlugins().add(new com.pauldemarco.flutter_blue.FlutterBluePlugin());
-    flutterEngine.getPlugins().add(new com.example.systemshortcuts.SystemShortcutsPlugin());
   }
 }

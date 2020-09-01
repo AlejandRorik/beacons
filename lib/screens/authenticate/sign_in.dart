@@ -100,7 +100,6 @@ class _SignInState extends State<SignIn> {
                                 }else{
                                   error="";
                                   Navigator.pop(this.context);
-                                  _showWelcomeUserMessage(context);
                                 }
                                 setState(() {loading = false;});
                               }
@@ -129,17 +128,6 @@ class _SignInState extends State<SignIn> {
   void _showNoInternetDialog(context) {
     AlertDialog alert = AlertDialog(
       content: Text(AppLocalizations.of(context).translate('noInternet').toString()),
-    );
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return alert;
-      },
-    );
-  }
-  void _showWelcomeUserMessage(context) {
-    AlertDialog alert = AlertDialog(
-      content: Text(AppLocalizations.of(context).translate('welcomeUser').toString()+" "+ AuthService.currentUserName.toString() +"!",textAlign: TextAlign.center,),
     );
     showDialog(
       context: context,
