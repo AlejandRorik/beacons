@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
@@ -7,7 +8,9 @@ import 'package:beacons/services/AuthService.dart';
 import 'package:beacons/shared/constants.dart';
 import 'package:beacons/shared/screenSize.dart';
 import 'package:flutter_beacon/flutter_beacon.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import '../../app_localizations.dart';
+import 'package:beacons/models/beacon.dart';
 
 class Home extends StatefulWidget {
 
@@ -16,7 +19,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> with WidgetsBindingObserver{
-
+  //variables del Home
   final AuthService _auth = AuthService();
   final StreamController<BluetoothState> streamController = StreamController();
   StreamSubscription<BluetoothState> _streamBluetooth;
@@ -35,6 +38,7 @@ class _HomeState extends State<Home> with WidgetsBindingObserver{
     listeningState();
   }
 
+  //listeningState() que debe vigilar si hay un cambio en el estado del bluetooth
   listeningState() async {
     print('Listening to bluetooth state');
     _streamBluetooth = flutterBeacon
@@ -54,7 +58,7 @@ class _HomeState extends State<Home> with WidgetsBindingObserver{
       }
     });
   }
-
+  //checkAllRequirements() que debe comprobar que tenemos todos los permisos del usuario
   checkAllRequirements() async {
     final bluetoothState = await flutterBeacon.bluetoothState;
     final bluetoothEnabled = bluetoothState == BluetoothState.stateOn;
@@ -62,8 +66,7 @@ class _HomeState extends State<Home> with WidgetsBindingObserver{
     final authorizationStatusOk =
         authorizationStatus == AuthorizationStatus.allowed ||
             authorizationStatus == AuthorizationStatus.always;
-    final locationServiceEnabled =
-    await flutterBeacon.checkLocationServicesIfEnabled;
+    final locationServiceEnabled = await flutterBeacon.checkLocationServicesIfEnabled;
 
     setState(() {
       this.authorizationStatusOk = authorizationStatusOk;
@@ -71,24 +74,27 @@ class _HomeState extends State<Home> with WidgetsBindingObserver{
       this.bluetoothEnabled = bluetoothEnabled;
     });
   }
-
+  //initScanBeacon() que es quien comienza la busqueda de beacons
   initScanBeacon() async {
     await flutterBeacon.initializeScanning;
     await checkAllRequirements();
-    if (!authorizationStatusOk ||
-        !locationServiceEnabled ||
-        !bluetoothEnabled) {
+    if (!authorizationStatusOk || !locationServiceEnabled || !bluetoothEnabled) {
       print('RETURNED, authorizationStatusOk=$authorizationStatusOk, '
           'locationServiceEnabled=$locationServiceEnabled, '
           'bluetoothEnabled=$bluetoothEnabled');
       return;
     }
-    final regions = <Region>[
-      Region(
-        identifier: 'Cubeacon',
-        proximityUUID: 'CB10023F-A318-3394-4199-A8730C7C1AEC',
-      ),
-    ];
+    final regions = <Region>[];
+
+    if (Platform.isIOS) {
+      // iOS platform, at least set identifier and proximityUUID for region scanning
+      regions.add(Region(
+          identifier: 'Apple Airlocate',
+          proximityUUID: 'E2C56DB5-DFFB-48D2-B060-D0F5A71096E0'));
+    } else {
+      // Android platform, it can ranging out of beacon that filter all of Proximity UUID
+      regions.add(Region(identifier: 'com.beacon',));
+    }
 
     if (_streamRanging != null) {
       if (_streamRanging.isPaused) {
@@ -97,9 +103,7 @@ class _HomeState extends State<Home> with WidgetsBindingObserver{
       }
     }
 
-    _streamRanging =
-        flutterBeacon.ranging(regions).listen((RangingResult result) {
-          print(result);
+    _streamRanging = flutterBeacon.ranging(regions).listen((RangingResult result) {
           if (result != null && mounted) {
             setState(() {
               _regionBeacons[result.region] = result.beacons;
@@ -108,11 +112,13 @@ class _HomeState extends State<Home> with WidgetsBindingObserver{
                 _beacons.addAll(list);
               });
               _beacons.sort(_compareParameters);
+              /*aqui tengo que comprobar que los beacons que hay en la lista coincidan con los de la base de datos y si es asi hacer un documento que deje prueba de ello*/
+              print(_beacons);
             });
           }
         });
   }
-
+  //pauseScanBeacon() para la busqueda de beacons
   pauseScanBeacon() async {
     _streamRanging?.pause();
     if (_beacons.isNotEmpty) {
@@ -121,21 +127,31 @@ class _HomeState extends State<Home> with WidgetsBindingObserver{
       });
     }
   }
-
+  //_compareParameters() para ordenar los beacons por el uuid de proximidad
   int _compareParameters(Beacon a, Beacon b) {
     int compare = a.proximityUUID.compareTo(b.proximityUUID);
-
-    if (compare == 0) {
-      compare = a.major.compareTo(b.major);
-    }
-
-    if (compare == 0) {
-      compare = a.minor.compareTo(b.minor);
-    }
-
+    if (compare == 0) {compare = a.major.compareTo(b.major);}
+    if (compare == 0) {compare = a.minor.compareTo(b.minor);}
     return compare;
   }
 
+  getBeaconDocumentsListFromFirebase(){
+    final CollectionReference beaconsCollection = Firestore.instance.collection('beacons');
+    beaconsCollection.snapshots().forEach((element) {
+      var listaBeacons = element.documents.toList();
+      return listaBeacons;
+      /*
+      listaBeacons.forEach((element) {
+        print(element.documentID.toString());
+        print(element.data["nombreBeacon"].toString());
+        print(element.data["UUID"].toString());
+        print(element.data["MAC"].toString());
+      });
+       */
+    });
+  }
+
+  //didChangeAppLifecycleState() inicia todas las funciones anteriores dependiendo de si tenemos permisos necesarios o no
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     print('AppLifecycleState = $state');
@@ -155,6 +171,7 @@ class _HomeState extends State<Home> with WidgetsBindingObserver{
     }
   }
 
+  // dispose se encarga de borrar funciones temporales para que no se queden guardadas en cache cuando creemos otra instancia de home
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
@@ -166,6 +183,7 @@ class _HomeState extends State<Home> with WidgetsBindingObserver{
     super.dispose();
   }
 
+  //build de home
   @override
   Widget build(BuildContext context) {
     ScreenSize().init(context);
@@ -254,29 +272,39 @@ class _HomeState extends State<Home> with WidgetsBindingObserver{
           ],
         ),
         body: _beacons == null || _beacons.isEmpty
-            ? Center(child: CircularProgressIndicator())
+            ? Center(
+            child: SpinKitCircle(color: appBackgroundColor1)
+            )
             : ListView(
           children: ListTile.divideTiles(
               context: context,
               tiles: _beacons.map((beacon) {
-                return ListTile(
-                  title: Text(beacon.proximityUUID),
-                  subtitle: new Row(
-                    mainAxisSize: MainAxisSize.max,
-                    children: <Widget>[
-                      Flexible(
-                          child: Text(
-                              'Major: ${beacon.major}\nMinor: ${beacon.minor}',
-                              style: TextStyle(fontSize: 13.0)),
-                          flex: 1,
-                          fit: FlexFit.tight),
-                      Flexible(
-                          child: Text(
-                              'Accuracy: ${beacon.accuracy}m\nRSSI: ${beacon.rssi}',
-                              style: TextStyle(fontSize: 13.0)),
-                          flex: 2,
-                          fit: FlexFit.tight)
-                    ],
+                return Card(
+                  elevation: 4,
+                  child: ListTile(
+                    title: Text('UUID: ${beacon.proximityUUID}',textAlign: TextAlign.left,style: TextStyle(fontSize: ScreenSize.blockSizeHorizontal*4),),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        new Text('MAC: ${beacon.macAddress}', textAlign: TextAlign.end,),
+                        new Row(
+                          mainAxisSize: MainAxisSize.max,
+                          children: <Widget>[
+                            Flexible(
+                                child: Text('Major: ${beacon.major}\nMinor: ${beacon.minor}',
+                                    style: TextStyle(fontSize: 13.0)),
+                                flex: 1,
+                                fit: FlexFit.tight),
+                            Flexible(
+                                child: Text(
+                                    'Accuracy: ${beacon.accuracy}m\nRSSI: ${beacon.rssi}',
+                                    style: TextStyle(fontSize: 13.0)),
+                                flex: 2,
+                                fit: FlexFit.tight)
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 );
               })).toList(),
