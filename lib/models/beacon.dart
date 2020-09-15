@@ -1,7 +1,7 @@
 class Beacons {
   final String beaconId;
-  final num latitude;
-  final num longitude;
+  final String latitude;
+  final String longitude;
   final String nombreBeacon;
   final String UUID;
   final String MAC;
