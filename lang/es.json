@@ -13,10 +13,8 @@
   "passwFieldMoreThan5": "Debe contener 6 o más caracteres.",
   "logInError": "No pudo entrar con esas credenciales, introduzca otras",
   "homeAppBar": "Inicio",
+  "homeCheckBluetooth": "Compruebe que la aplicación tiene todos los permisos en orden (iconos de arriba)",
+  "scanning": "Escaneando...",
   "loading": "Cargando...",
-  "noInternet": "No puede iniciar sesión ni registrarse sin internet",
-  "welcomeUser": "¡Bienvenido",
-  "turnBluetoothOn": "Por favor, encienda el bluetooth para empezar a utilizar esta aplicación.",
-  "turnBluetoothButtonOn": "Encender Bluetooth",
-  "turnBluetoothButtonOff": "Mantener Bluetooth apagado"
+  "noInternet": "No puede iniciar sesión ni registrarse sin internet"
 }
