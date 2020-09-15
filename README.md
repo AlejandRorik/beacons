@@ -1,16 +1,11 @@
-# beacons
+#Descubrimiento de beacons. Con flutter.
 
-A new Flutter application.
+Configuración necesaria para la aplicación:
 
-## Getting Started
+-MUY IMPORTANTE => Beacons con señal "iBeacon".
+-Si los beacons necesitan una app para configurarlos, nos descargamos la app.
+-Cambiar el el intervalo en el que se envia la señal("advertising interval") a una frecuencia entre 100 y 300 ms.
+-Comprobar que la potencia de la señal(Radio TX Power) está a tope (+4).
+-Y lo demás por defecto.
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+(Esta configuración esta hecha en beacons del modelo "iBKS 105") 
