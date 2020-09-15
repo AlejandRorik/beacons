@@ -1,4 +1,3 @@
-
 import 'dart:io';
 import 'dart:async';
 
@@ -13,7 +12,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_beacon/flutter_beacon.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import '../../app_localizations.dart';
-import 'package:intl/intl.dart';
 import 'package:beacons/models/beacon.dart';
 
 class Home extends StatefulWidget {
@@ -23,15 +21,18 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> with WidgetsBindingObserver{
-  //variables del Home
+  //VARIABLES NECESARIAS DEL HOME
   final AuthService _auth = AuthService();
   final db = Firestore.instance;
+  final beaconsCollection = Firestore.instance.collection("beacons");
+
   final StreamController<BluetoothState> streamController = StreamController();
   StreamSubscription<BluetoothState> _streamBluetooth;
   StreamSubscription<RangingResult> _streamRanging;
 
   final _regionBeacons = <Region, List<Beacon>>{};
   final _beacons = <Beacon>[];
+  final _firebaseBeacons = [];
   final _beaconsTrue = <Beacon,DateTime>{};
   bool authorizationStatusOk = false;
   bool locationServiceEnabled = false;
@@ -65,7 +66,7 @@ class _HomeState extends State<Home> with WidgetsBindingObserver{
       }
     });
   }
-  //checkAllRequirements() que debe comprobar que tenemos todos los permisos del usuario
+  //checkAllRequirements() que debe comprobar que tenemos todos los permisos del usuario necesarios
   checkAllRequirements() async {
     final bluetoothState = await flutterBeacon.bluetoothState;
     final bluetoothEnabled = bluetoothState == BluetoothState.stateOn;
@@ -81,8 +82,10 @@ class _HomeState extends State<Home> with WidgetsBindingObserver{
       this.bluetoothEnabled = bluetoothEnabled;
     });
   }
+
   //initScanBeacon() que es quien comienza la busqueda de beacons
   initScanBeacon() async {
+    _firebaseBeacons.addAll(await getBeaconListFromFirebase());
     await flutterBeacon.initializeScanning;
     await checkAllRequirements();
     if (!authorizationStatusOk || !locationServiceEnabled || !bluetoothEnabled) {
@@ -109,35 +112,44 @@ class _HomeState extends State<Home> with WidgetsBindingObserver{
         return;
       }
     }
-
+    //_streamRanging coge todos los beacon que haya en una "region" en nuestro caso los meteremos en _beacons
     _streamRanging = flutterBeacon.ranging(regions).listen((RangingResult result) async{
           if (result != null && mounted) {
             setState(() {
               _regionBeacons[result.region] = result.beacons;
-              _beacons!=null ? _beacons.clear() : null;
-              _regionBeacons.values.forEach((list) {
+              _beacons.clear();
+              _regionBeacons.values.forEach((list) {//los añadimos desde _regionBeacons
                 _beacons.addAll(list);
               });
-              _beacons.sort(_compareParameters);
-            });
+              _beacons.sort(_compareParameters);//los ordenamos por UUID
 
-            /*aqui tengo que comprobar que los beacons que hay en la lista coincidan con los de la base de datos y si es asi hacer un documento que deje prueba de ello*/
-            _beacons.forEach((element) {
-              if(!_beaconsTrue.keys.contains(element)){
-                _beaconsTrue[element] = DateTime.now();
-              }
-            });
-            _beaconsTrue.forEach((key, value) async {
-              var getBeaconOut = true;
-              _beacons.forEach((element) {
-                if(key==element){
-                  getBeaconOut = false;
+              /*compruebo que los beacons que recojo de afuera son los de mi base de datos*/
+              _beacons.forEach((beaconAComparar) {
+                var beaconValido = false;
+                _firebaseBeacons.forEach((beaconDeFirebase) {
+                  if(beaconAComparar.macAddress==beaconDeFirebase.MAC){
+                    beaconValido=true;
+                  }
+                });
+                if(beaconValido==true){
+                  _beaconsTrue[beaconAComparar]=DateTime.now();//los meto junto a una hora
                 }
               });
-              if(getBeaconOut == true){
-                await makeBeaconDocument(key,value);
-                _beaconsTrue.remove(key);
-              }
+
+              /*compruebo si estoy en rango y si ya no lo estoy dejo un documento que muestra evidencia de ello*/
+              _beaconsTrue.forEach((key, value) async {
+                var getBeaconOut = true;
+                _beacons.forEach((element) {
+                  if(_beaconsTrue.containsKey(element)){
+                    getBeaconOut = false;
+                  }
+                });
+                if(getBeaconOut == true){
+                  //await makeBeaconDocument(key,value);
+                  _beaconsTrue.remove(key);
+                }
+              });
+
             });
           }
         });
@@ -159,22 +171,25 @@ class _HomeState extends State<Home> with WidgetsBindingObserver{
     return compare;
   }
 
-  getBeaconDocumentsListFromFirebase(){
-    final CollectionReference beaconsCollection = Firestore.instance.collection('beacons');
-    beaconsCollection.snapshots().forEach((element) {
-      var listaBeacons = element.documents.toList();
-      return listaBeacons;
-      /*
-      listaBeacons.forEach((element) {
-        print(element.documentID.toString());
-        print(element.data["nombreBeacon"].toString());
-        print(element.data["UUID"].toString());
-        print(element.data["MAC"].toString());
-      });
-       */
+  //coge la lista de beacons de la base de datos
+  getBeaconListFromFirebase() async {
+    var lista = <DocumentSnapshot>[];
+    var listaBeaconsFirebase = [];
+    await beaconsCollection.getDocuments().then((value) => lista = value.documents.toList());
+    lista.forEach((element) {
+      listaBeaconsFirebase.add(Beacons(
+        beaconId: element.documentID,
+        nombreBeacon: element.data["nombreBeacon"],
+        UUID: element.data["UUID"],
+        MAC: element.data["MAC"],
+        longitude: element.data["longitude"],
+        latitude: element.data["latitude"],
+      ));
     });
+    return listaBeaconsFirebase;
   }
 
+  //crea documentos del usuario pasando por un beacon entre un momento concreto
   makeBeaconDocument(Beacon beacon, DateTime entrada) async{
     if(AuthService.currentId!=null){
       await db.collection('usuarios/' + AuthService.currentId + '/userPassingBy').add({
@@ -221,8 +236,7 @@ class _HomeState extends State<Home> with WidgetsBindingObserver{
   //build de home
   @override
   Widget build(BuildContext context) {
-    //DateFormat.Hms().format(DateTime.now())
-
+    
     ScreenSize().init(context);
     return Container(
       decoration: BoxDecoration(
@@ -316,7 +330,7 @@ class _HomeState extends State<Home> with WidgetsBindingObserver{
                   child: Card(
                       elevation: 3,
                       child: Center(
-                          child: Text("Compruebe que la aplicación tiene todos los permisos en orden (iconos de arriba)",textAlign: TextAlign.center, style: TextStyle(fontSize: ScreenSize.blockSizeHorizontal * 4),)
+                          child: Text(AppLocalizations.of(context).translate('homeCheckBluetooth'),textAlign: TextAlign.center, style: TextStyle(fontSize: ScreenSize.blockSizeHorizontal * 4),)
                       )
                   ),
         ),
@@ -328,7 +342,7 @@ class _HomeState extends State<Home> with WidgetsBindingObserver{
               children: <Widget>[
                 SpinKitWave(color: Colors.white70,size: ScreenSize.blockSizeVertical*10,),
                 SizedBox(height: ScreenSize.blockSizeVertical*3,),
-                Text("Escaneando...",style: TextStyle(color: Colors.white70,fontSize: ScreenSize.blockSizeVertical*4),)
+                Text(AppLocalizations.of(context).translate('homeCheckBluetooth'),style: TextStyle(color: Colors.white70,fontSize: ScreenSize.blockSizeVertical*4),)
               ],
             ))
             : ListView(
